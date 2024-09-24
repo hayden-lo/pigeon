@@ -10,13 +10,12 @@ import (
 var db *sql.DB
 
 func Connect() error {
-	username := "xmiles"
-	password := "oR%EwEgdFNv9io8L"
-	host := "pc-uf60e09n0v9968tta00.rwlb.rds.aliyuncs.com"
+	username := "aaa"
+	password := "bbb"
+	host := "ccc"
 	port := "3306"
-	databaseName := "meteor_ssp"
+	databaseName := "ddd"
 	var err error
-	// db, err := sql.Open("mysql", "xmiles:oR%EwEgdFNv9io8L@tcp(jdbc:mysql://pc-uf60e09n0v9968tta.rwlb.rds.aliyuncs.com:3306)/meteor_ssp?useUnicode=true&characterEncoding=UTF8&useAffectedRows=true&useSSL=false&serverTimezone=Asia/Shanghai&autoReconnect=true")
 	db, err = sql.Open("mysql", username+":"+password+"@tcp("+host+":"+port+")/"+databaseName)
 	if err != nil {
 		log.Fatalf("创建 Connector 失败：%v", err)
