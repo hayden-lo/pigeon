@@ -10,11 +10,11 @@ import (
 var db *sql.DB
 
 func Connect() error {
-	username := "aaa"
-	password := "bbb"
-	host := "ccc"
+	username := "root"
+	password := "root"
+	host := "localhost"
 	port := "3306"
-	databaseName := "ddd"
+	databaseName := "joke"
 	var err error
 	db, err = sql.Open("mysql", username+":"+password+"@tcp("+host+":"+port+")/"+databaseName)
 	if err != nil {
