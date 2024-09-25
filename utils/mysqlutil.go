@@ -3,6 +3,7 @@ package utils
 import (
 	"database/sql"
 	"log"
+	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -10,13 +11,14 @@ import (
 var db *sql.DB
 
 func Connect() error {
-	username := "root"
-	password := "root"
-	host := "localhost"
-	port := "3306"
-	databaseName := "joke"
+	host := GlobalConfig.Mysql.Host
+	port := GlobalConfig.Mysql.Port
+	username := GlobalConfig.Mysql.Username
+	password := GlobalConfig.Mysql.Password
+	databaseName := GlobalConfig.Mysql.DataBase
+
 	var err error
-	db, err = sql.Open("mysql", username+":"+password+"@tcp("+host+":"+port+")/"+databaseName)
+	db, err = sql.Open("mysql", username+":"+password+"@tcp("+host+":"+strconv.Itoa(port)+")/"+databaseName)
 	if err != nil {
 		log.Fatalf("创建 Connector 失败：%v", err)
 	}
