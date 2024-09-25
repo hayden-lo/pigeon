@@ -50,3 +50,22 @@ func Update(query string, args ...interface{}) (int64, error) {
 	}
 	return rowsAffected, nil
 }
+
+func Insert(query string, args ...interface{}) (int64, error) {
+	if db == nil {
+		if err := Connect(); err != nil {
+			return 0, err
+		}
+	}
+	result, err := db.Exec(query, args...)
+	if err != nil {
+		log.Fatalf("插入失败：%v", err)
+		return 0, err
+	}
+	insertedID, err := result.LastInsertId()
+	if err != nil {
+		log.Fatalf("获取插入的 ID 失败：%v", err)
+		return 0, err
+	}
+	return insertedID, nil
+}

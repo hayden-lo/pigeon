@@ -4,6 +4,7 @@ import (
 	"log"
 	"pigeon/entity"
 	"pigeon/utils"
+	"time"
 )
 
 func GetJokeByPage(page int, pageSize int) ([]entity.Joke, error) {
@@ -27,5 +28,15 @@ func GetJokeByPage(page int, pageSize int) ([]entity.Joke, error) {
 	}
 
 	return jokes, nil
+}
 
+func InsertUserAct(jokeId string, actType string) error {
+	query := "insert into dwd_joke_act_rt values('?','?', ?);"
+	actTime := time.Now().Unix()
+	_, err := utils.Insert(query, jokeId, actType, actTime)
+	if err != nil {
+		log.Fatalf("Insert error: %v", err)
+	}
+
+	return err
 }
