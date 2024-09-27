@@ -6,7 +6,7 @@ import (
 	"pigeon/utils"
 )
 
-func GetJokeByPage(page int, pageSize int) ([]entity.Joke, error) {
+func GetJokeByPage(deviceId string, page int, pageSize int) ([]entity.Joke, error) {
 	query := `select t.joke_id, t.content from(
 	select joke_id, content, row_number() over(order by joke_id) as rn from dim_joke_di) as t
 	where t.rn between ? and ?`
@@ -29,10 +29,10 @@ func GetJokeByPage(page int, pageSize int) ([]entity.Joke, error) {
 	return jokes, nil
 }
 
-func InsertUserAct(jokeId string, actType string) error {
-	query := "insert into dwd_joke_act_rt values(?, ?, ?);"
+func InsertUserAct(deviceId string, jokeId string, actType string) error {
+	query := "insert into dwd_joke_act_rt values(?, ?, ?, ?);"
 	actTime, _ := utils.StringToTime(utils.GetNowTime())
-	_, err := utils.Insert(query, jokeId, actType, actTime)
+	_, err := utils.Insert(query, deviceId, jokeId, actType, actTime)
 	if err != nil {
 		log.Fatalf("Insert error: %v", err)
 	}

@@ -8,8 +8,9 @@ import (
 
 // request jokes
 type JokeReq struct {
-	Page     int `json:"page"`
-	PageSize int `json:"pageSize"`
+	DeviceId string `json:"deviceId"`
+	Page     int    `json:"page"`
+	PageSize int    `json:"pageSize"`
 }
 
 func GetJokeByPage(router *gin.Engine) {
@@ -20,7 +21,7 @@ func GetJokeByPage(router *gin.Engine) {
 			return
 		}
 
-		jokes, err := dao.GetJokeByPage(data.Page, data.PageSize)
+		jokes, err := dao.GetJokeByPage(data.DeviceId, data.Page, data.PageSize)
 		if err != nil {
 			c.JSON(500, gin.H{"error": "Error fetching jokes"})
 			return
@@ -32,8 +33,9 @@ func GetJokeByPage(router *gin.Engine) {
 
 // record user actions
 type UserActReq struct {
-	JokeId  string `json:"jokeId"`
-	ActType string `json:"actType"`
+	DeviceId string `json:"deviceId"`
+	JokeId   string `json:"jokeId"`
+	ActType  string `json:"actType"`
 }
 
 func RecordUserAct(router *gin.Engine) {
@@ -44,12 +46,17 @@ func RecordUserAct(router *gin.Engine) {
 			return
 		}
 
-		err := dao.InsertUserAct(data.JokeId, data.ActType)
+		if !(data.ActType == "like" || data.ActType == "show") {
+			c.JSON(400, gin.H{"error": "Wrong actType value"})
+			return
+		}
+
+		err := dao.InsertUserAct(data.DeviceId, data.JokeId, data.ActType)
 		if err != nil {
 			c.JSON(500, gin.H{"error": "Error fetching jokes"})
 			return
 		}
 
-		c.JSON(200, gin.H{"message": "操作成功"})
+		c.JSON(200, gin.H{"status": "success", "message": "操作成功"})
 	})
 }
