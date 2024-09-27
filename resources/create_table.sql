@@ -6,12 +6,14 @@ create table dim_user_di(
     launch_time timestamp,
     register_time timestamp
 );
+create index device_idx on dim_user_di(device_id);
 
 create table dim_joke_di(
     joke_id varchar(255),
     content varchar(255),
     create_date date
 );
+create index joke_idx on dim_joke_di(joke_id);
 
 create table dwd_joke_act_rt(
     device_id varchar(255),
@@ -19,3 +21,5 @@ create table dwd_joke_act_rt(
     act_type varchar(255),
     act_time timestamp
 );
+create index device_idx on dwd_joke_act_rt(device_id);
+create index joke_idx on dwd_joke_act_rt(joke_id);

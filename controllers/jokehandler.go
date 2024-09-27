@@ -39,7 +39,7 @@ type UserActReq struct {
 }
 
 func RecordUserAct(router *gin.Engine) {
-	router.POST("/RecordUserAct", func(c *gin.Context) {
+	router.POST("/recordUserAct", func(c *gin.Context) {
 		var data UserActReq
 		if err := c.ShouldBindJSON(&data); err != nil {
 			c.JSON(400, gin.H{"error": "Invalid JSON data"})
@@ -53,10 +53,34 @@ func RecordUserAct(router *gin.Engine) {
 
 		err := dao.InsertUserAct(data.DeviceId, data.JokeId, data.ActType)
 		if err != nil {
-			c.JSON(500, gin.H{"error": "Error fetching jokes"})
+			c.JSON(500, gin.H{"error": "Error inserting record"})
 			return
 		}
 
 		c.JSON(200, gin.H{"status": "success", "message": "操作成功"})
+	})
+}
+
+// get user show history
+type UserHistoryReq struct {
+	DeviceId string `json:"deviceId"`
+	UserId   string `json:"userId"`
+}
+
+func GetUserShowHistory(router *gin.Engine) {
+	router.POST("/getUserShowHistory", func(c *gin.Context) {
+		var data UserHistoryReq
+		if err := c.ShouldBindJSON(&data); err != nil {
+			c.JSON(400, gin.H{"error": "Invalid JSON data"})
+			return
+		}
+
+		jokes, err := dao.GetUserShowHistory(data.DeviceId)
+		if err != nil {
+			c.JSON(500, gin.H{"error": "Error fetching user show history"})
+			return
+		}
+
+		c.JSON(200, jokes)
 	})
 }
