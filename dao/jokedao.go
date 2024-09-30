@@ -31,7 +31,7 @@ func GetJokeByPage(deviceId string, page int, pageSize int) ([]entity.Joke, erro
 	jokes := make([]entity.Joke, 0)
 	for rows.Next() {
 		var joke entity.Joke
-		err := rows.Scan(&joke.ID, &joke.Content)
+		err := rows.Scan(&joke.JokeId, &joke.Content)
 		if err != nil {
 			return nil, err
 		}

@@ -1,6 +1,6 @@
 package entity
 
 type Joke struct {
-	ID      string `json:"id"`
+	JokeId  string `json:"jokeId"`
 	Content string `json:"content"`
 }
