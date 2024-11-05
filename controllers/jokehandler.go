@@ -17,7 +17,7 @@ func GetJokeByPage(router *gin.Engine) {
 	router.POST("/getJokeByPage", func(c *gin.Context) {
 		deviceId := c.GetHeader("deviceId")
 		if deviceId == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"code": 102, "message": "Invalid Header"})
+			c.JSON(http.StatusBadRequest, gin.H{"code": 103, "message": "Invalid Header"})
 			return
 		}
 
@@ -47,7 +47,7 @@ func RecordUserAct(router *gin.Engine) {
 	router.POST("/recordUserAct", func(c *gin.Context) {
 		deviceId := c.GetHeader("deviceId")
 		if deviceId == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"code": 102, "message": "Invalid Header"})
+			c.JSON(http.StatusBadRequest, gin.H{"code": 103, "message": "Invalid Header"})
 			return
 		}
 
