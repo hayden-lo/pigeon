@@ -8,3 +8,8 @@ type Joke struct {
 	JokeDelivery string `json:"jokeDelivery"`
 	Language     string `json:"language"`
 }
+
+type JokeContent struct {
+	JokeId  string `json:"jokeId"`
+	Content string `json:"content"`
+}
