@@ -2,12 +2,10 @@ package controllers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"pigeon/dao"
 	"pigeon/utils"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -111,42 +109,12 @@ func GetFreeJoke(router *gin.Engine) {
 }
 
 func UpdateFreeJoke(router *gin.Engine) {
-	router.GET("/updateFreeJoke", func(c *gin.Context) {
-		start := 0
-		end := 9
-		var values [][]interface{}
-		for end < 318 {
-			freeJokeResp, err := dao.GetFreeJokes(start, end)
-			start = start + 10
-			end = min(end+10, 318)
-			if err != nil {
-				continue
-			}
+	router.GET("/updateFreeJokes", func(c *gin.Context) {
 
-			jokes, ok := freeJokeResp["jokes"].([]interface{})
-			if !ok {
-				log.Printf("No 'jokes' field found in response")
-				continue
-			}
-
-			for _, joke := range jokes {
-				joke, ok := joke.(map[string]interface{})
-				if !ok {
-					log.Printf("Invalid joke data format")
-					continue
-				}
-
-				values = append(values, []interface{}{
-					joke["id"], joke["joke"], joke["cateory"], joke["type"], joke["setup"], joke["delivery"],
-					joke["lang"], "https://v2.jokeapi.dev", utils.GetNowDate(),
-				})
-			}
-			time.Sleep(1 * time.Second)
-		}
-		err := dao.UpsertFreeJokes(values)
+		err := dao.UpsertFreeJokes()
 
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"code": 301, "message": "Error inserting record"})
+			c.JSON(http.StatusInternalServerError, gin.H{"code": 301, "message": "Error upserting record"})
 			return
 		}
 

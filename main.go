@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"pigeon/controllers"
 	"pigeon/utils"
 
@@ -16,11 +15,11 @@ func main() {
 	controllers.GetJokeByPage(router)
 	controllers.RecordUserAct(router)
 	controllers.GetFreeJoke(router)
+	controllers.UpdateFreeJoke(router)
 
 	// 启动服务器
 	port := fmt.Sprintf(":%d", utils.GlobalConfig.Server.Port)
 	if err := router.Run(port); err != nil {
-		log.Print(err)
 		panic(err)
 	}
 }

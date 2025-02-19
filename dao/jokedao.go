@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"pigeon/entity"
 	"pigeon/utils"
+	"strings"
+	"time"
 )
 
 func GetJokeByPage(deviceId string, page int, pageSize int) ([]entity.JokeContent, error) {
@@ -16,7 +18,7 @@ func GetJokeByPage(deviceId string, page int, pageSize int) ([]entity.JokeConten
 	// where t.rn between ? and ?`
 	query := `select t.joke_id, t.content from(
 	select t1.joke_id, t1.content, row_number() over(order by t2.like_rate desc) as rn
-	from(select joke_id, content from dim_joke_di) as t1
+	from(select joke_id, case when type = 'twopart' then concat(setup, '\n\n', delivery) else content end as content from dim_joke_di) as t1
 	left join(
 		select joke_id, if(sum(case when act_type='show' then 1 else 0 end)=0, 0
 		,sum(case when act_type='like' then 1 else 0 end)/sum(case when act_type='show' then 1 else 0 end)) as like_rate
@@ -112,10 +114,48 @@ func GetFreeJokes(start int, end int) (map[string]interface{}, error) {
 	return freeJokeResp, nil
 }
 
-func UpsertFreeJokes(values [][]interface{}) error {
+func UpsertFreeJokes() error {
+	// initialize parameters
+	start := 0
+	end := 9
+	var values [][]interface{}
+
+	// for loop request free joke
+	for end < 318 {
+		freeJokeResp, err := GetFreeJokes(start, end)
+		start = start + 10
+		end = min(end+10, 318)
+		if err != nil {
+			continue
+		}
+
+		jokes, ok := freeJokeResp["jokes"].([]interface{})
+		if !ok {
+			log.Printf("No 'jokes' field found in response")
+			continue
+		}
+
+		for _, joke := range jokes {
+			joke, ok := joke.(map[string]interface{})
+			if !ok {
+				log.Printf("Invalid joke data format")
+				continue
+			}
+
+			values = append(values, []interface{}{
+				"JK" + strings.Repeat("0", 5-len(fmt.Sprintf("%v", joke["id"]))) + fmt.Sprintf("%v", joke["id"]),
+				joke["joke"], joke["cateory"], joke["type"], joke["setup"], joke["delivery"],
+				joke["lang"], "https://v2.jokeapi.dev", utils.GetNowDate(),
+			})
+		}
+		// rate limit
+		time.Sleep(1 * time.Second)
+	}
+
+	// batch upsert database
 	_, err := utils.BulkUpsert("dim_joke_di", values, []string{"joke_id", "source"})
 	if err != nil {
-		log.Fatalf("Upsert failed: %s", err)
+		log.Printf("Upsert failed: %s", err)
 	}
 	return err
 }
