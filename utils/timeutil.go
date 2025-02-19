@@ -4,6 +4,15 @@ import (
 	"time"
 )
 
+func GetNowDate() string {
+	loc, err := time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		return "Error loading location"
+	}
+	now := time.Now().In(loc)
+	return now.Format("2006-01-02")
+}
+
 func GetNowTime() string {
 	loc, err := time.LoadLocation("Asia/Shanghai")
 	if err != nil {

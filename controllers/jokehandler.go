@@ -1,9 +1,13 @@
 package controllers
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 	"pigeon/dao"
+	"pigeon/utils"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -63,7 +67,6 @@ func RecordUserAct(router *gin.Engine) {
 	})
 }
 
-c
 type UserHistoryReq struct {
 	DeviceId string `json:"deviceId"`
 	UserId   string `json:"userId"`
@@ -87,7 +90,6 @@ func GetUserShowHistory(router *gin.Engine) {
 	})
 }
 
-
 func GetFreeJoke(router *gin.Engine) {
 	router.GET("/getFreeJoke", func(c *gin.Context) {
 		start, startErr := strconv.Atoi(c.DefaultQuery("start", "0"))
@@ -105,5 +107,55 @@ func GetFreeJoke(router *gin.Engine) {
 		}
 
 		c.JSON(http.StatusOK, freeJokeResp)
+	})
+}
+
+func UpdateFreeJoke(router *gin.Engine) {
+	router.GET("/updateFreeJoke", func(c *gin.Context) {
+		start := 0
+		end := 9
+		var values [][]interface{}
+		for end < 318 {
+			freeJokeResp, err := dao.GetFreeJokes(start, end)
+			start = start + 10
+			end = min(end+10, 318)
+			if err != nil {
+				continue
+			}
+
+			jokes, ok := freeJokeResp["jokes"].([]interface{})
+			if !ok {
+				log.Printf("No 'jokes' field found in response")
+				continue
+			}
+
+			for _, joke := range jokes {
+				joke, ok := joke.(map[string]interface{})
+				if !ok {
+					log.Printf("Invalid joke data format")
+					continue
+				}
+
+				values = append(values, []interface{}{
+					joke["id"], joke["joke"], joke["cateory"], joke["type"], joke["setup"], joke["delivery"],
+					joke["lang"], "https://v2.jokeapi.dev", utils.GetNowDate(),
+				})
+			}
+			time.Sleep(1 * time.Second)
+		}
+		err := dao.UpsertFreeJokes(values)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"code": 301, "message": "Error inserting record"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"code": 200, "message": "Success"})
+	})
+}
+
+func Test(router *gin.Engine) {
+	router.GET("/test", func(c *gin.Context) {
+		fmt.Println(utils.GetNowDate())
 	})
 }

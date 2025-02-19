@@ -46,9 +46,8 @@ func GetJokeByPage(deviceId string, page int, pageSize int) ([]entity.JokeConten
 }
 
 func InsertUserAct(deviceId string, jokeId string, actType string) error {
-	query := "insert into dwd_joke_act_rt values(?, ?, ?, ?);"
 	actTime, _ := utils.StringToTime(utils.GetNowTime())
-	_, err := utils.Insert(query, deviceId, jokeId, actType, actTime)
+	_, err := utils.Insert("dwd_joke_act_rt", deviceId, jokeId, actType, actTime)
 	if err != nil {
 		log.Fatalf("Insert error: %v", err)
 	}
@@ -111,4 +110,12 @@ func GetFreeJokes(start int, end int) (map[string]interface{}, error) {
 	}
 
 	return freeJokeResp, nil
+}
+
+func UpsertFreeJokes(values [][]interface{}) error {
+	_, err := utils.BulkUpsert("dim_joke_di", values, []string{"joke_id", "source"})
+	if err != nil {
+		log.Fatalf("Upsert failed: %s", err)
+	}
+	return err
 }

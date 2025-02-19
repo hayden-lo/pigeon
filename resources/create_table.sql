@@ -9,8 +9,14 @@ create table dim_user_di(
 create index device_idx on dim_user_di(device_id);
 
 create table dim_joke_di(
-    joke_id varchar(255),
-    content varchar(255),
+    joke_id   varchar(255),
+    content   text,
+    category  varchar(255),
+    type      varchar(255),
+    setup     text,
+    delivery  text,
+    language  varchar(255),
+    source    varchar(255),
     create_date date
 );
 create index joke_idx on dim_joke_di(joke_id);
