@@ -58,7 +58,7 @@ func InsertUserAct(deviceId string, jokeId string, actType string) error {
 }
 
 func GetUserShowHistory(deviceId string) ([]string, error) {
-	query := "select joke_id from dwd_joke_act_rt where device_id = ? group by joke_id"
+	query := "select joke_id from dwd_joke_act_rt where device_id = ? and act_type = 'show' group by joke_id"
 	rows, err := utils.Select(query, deviceId)
 	if err != nil {
 		log.Fatalf("Select error: %v", err)

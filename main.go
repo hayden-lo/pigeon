@@ -14,8 +14,10 @@ func main() {
 	// 设置路由
 	controllers.GetJokeByPage(router)
 	controllers.RecordUserAct(router)
-	controllers.GetFreeJoke(router)
-	controllers.UpdateFreeJoke(router)
+	controllers.GetUserShowHistory(router)
+	controllers.GetFreeJokes(router)
+	controllers.UpdateFreeJokes(router)
+	controllers.Test(router)
 
 	// 启动服务器
 	port := fmt.Sprintf(":%d", utils.GlobalConfig.Server.Port)

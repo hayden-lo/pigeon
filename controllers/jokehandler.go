@@ -12,20 +12,25 @@ import (
 
 // request jokes
 type JokeReq struct {
-	DeviceId string `json:"deviceId"`
-	Page     int    `json:"page"`
-	PageSize int    `json:"pageSize"`
+	Page     int `json:"page"`
+	PageSize int `json:"pageSize"`
 }
 
 func GetJokeByPage(router *gin.Engine) {
 	router.POST("/getJokeByPage", func(c *gin.Context) {
+		deviceId := c.GetHeader("deviceId")
+		if deviceId == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"code": 103, "message": "Invalid Header"})
+			return
+		}
+
 		var data JokeReq
 		if err := c.ShouldBindJSON(&data); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"code": 101, "message": "Invalid JSON data"})
 			return
 		}
 
-		jokes, err := dao.GetJokeByPage(data.DeviceId, data.Page, data.PageSize)
+		jokes, err := dao.GetJokeByPage(deviceId, data.Page, data.PageSize)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": 201, "message": "Error fetching jokes"})
 			return
@@ -37,13 +42,18 @@ func GetJokeByPage(router *gin.Engine) {
 
 // record user actions
 type UserActReq struct {
-	DeviceId string `json:"deviceId"`
-	JokeId   string `json:"jokeId"`
-	ActType  string `json:"actType"`
+	JokeId  string `json:"jokeId"`
+	ActType string `json:"actType"`
 }
 
 func RecordUserAct(router *gin.Engine) {
 	router.POST("/recordUserAct", func(c *gin.Context) {
+		deviceId := c.GetHeader("deviceId")
+		if deviceId == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"code": 103, "message": "Invalid Header"})
+			return
+		}
+
 		var data UserActReq
 		if err := c.ShouldBindJSON(&data); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"code": 101, "message": "Invalid JSON data"})
@@ -55,7 +65,7 @@ func RecordUserAct(router *gin.Engine) {
 			return
 		}
 
-		err := dao.InsertUserAct(data.DeviceId, data.JokeId, data.ActType)
+		err := dao.InsertUserAct(deviceId, data.JokeId, data.ActType)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"code": 301, "message": "Error inserting record"})
 			return
@@ -65,20 +75,15 @@ func RecordUserAct(router *gin.Engine) {
 	})
 }
 
-type UserHistoryReq struct {
-	DeviceId string `json:"deviceId"`
-	UserId   string `json:"userId"`
-}
-
 func GetUserShowHistory(router *gin.Engine) {
 	router.POST("/getUserShowHistory", func(c *gin.Context) {
-		var data UserHistoryReq
-		if err := c.ShouldBindJSON(&data); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"code": 101, "message": "Invalid JSON data"})
+		deviceId := c.GetHeader("deviceId")
+		if deviceId == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"code": 103, "message": "Invalid Header"})
 			return
 		}
 
-		jokes, err := dao.GetUserShowHistory(data.DeviceId)
+		jokes, err := dao.GetUserShowHistory(deviceId)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"code": 201, "message": "Error fetching user show history"})
 			return
@@ -88,8 +93,8 @@ func GetUserShowHistory(router *gin.Engine) {
 	})
 }
 
-func GetFreeJoke(router *gin.Engine) {
-	router.GET("/getFreeJoke", func(c *gin.Context) {
+func GetFreeJokes(router *gin.Engine) {
+	router.GET("/getFreeJokes", func(c *gin.Context) {
 		start, startErr := strconv.Atoi(c.DefaultQuery("start", "0"))
 		end, endErr := strconv.Atoi(c.DefaultQuery("end", "9"))
 
@@ -108,7 +113,7 @@ func GetFreeJoke(router *gin.Engine) {
 	})
 }
 
-func UpdateFreeJoke(router *gin.Engine) {
+func UpdateFreeJokes(router *gin.Engine) {
 	router.GET("/updateFreeJokes", func(c *gin.Context) {
 
 		err := dao.UpsertFreeJokes()
